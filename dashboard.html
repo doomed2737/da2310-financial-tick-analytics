@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DA2310: Distributed Financial Tick Engine — Executive Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #090d16; color: #f8fafc; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .glass-panel { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.6); }
+    .glass-card { background: #1e293b; border: 1px solid #334155; }
+    .active-tab { background: #0284c7; color: #ffffff; border-color: #38bdf8; }
+    .inactive-tab { background: #1e293b; color: #94a3b8; border-color: #334155; }
+    .inactive-tab:hover { background: #334155; color: #f8fafc; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+  <!-- HEADER / HERO -->
+  <header class="glass-panel rounded-2xl p-6 mb-8 border border-slate-700 shadow-2xl relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 relative z-10">
+      <div>
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30">IISc Bangalore • CDS DA2310</span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Option 4 (Accepted)</span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Prof. Yogesh Simmhan</span>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
+          Scalable High-Frequency Financial Tick Analytics & Volatility Engine
+        </h1>
+        <p class="text-sm text-slate-400 mt-1 max-w-4xl">
+          Distributed PySpark architecture evaluating multi-cap market dynamics, zero-shuffle rolling windowing, Catalyst physical query optimizations, and multi-core scaling efficiency.
+        </p>
+      </div>
+
+      <!-- Live Action Buttons -->
+      <div class="flex items-center gap-3">
+        <a href="PROJECT_MASTER_TRACKER.md" target="_blank" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium border border-slate-600 transition text-slate-300">
+          📄 Master Tracker (.md)
+        </a>
+        <button onclick="window.print()" class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white transition shadow-lg shadow-sky-600/30">
+          🖨️ Export Report
+        </button>
+      </div>
+    </div>
+
+    <!-- STATS STRIP -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-700/60">
+      <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700">
+        <div class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Total Ticks Processed</div>
+        <div class="text-2xl font-bold font-mono text-sky-400 mt-1">2,350,000+</div>
+        <div class="text-xs text-slate-500 mt-0.5">India, US & 1m S3 Crypto</div>
+      </div>
+      <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700">
+        <div class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Catalyst Acceleration</div>
+        <div class="text-2xl font-bold font-mono text-emerald-400 mt-1">6.64x Speedup</div>
+        <div class="text-xs text-slate-500 mt-0.5">2.021s → 0.304s Scan Prune</div>
+      </div>
+      <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700">
+        <div class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Peak Multi-Core Speedup</div>
+        <div class="text-2xl font-bold font-mono text-indigo-400 mt-1">2.86x (p = 8)</div>
+        <div class="text-xs text-slate-500 mt-0.5">0.12s latency on 8 cores</div>
+      </div>
+      <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700">
+        <div class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Optimal Spark Partitioning</div>
+        <div class="text-2xl font-bold font-mono text-amber-400 mt-1">N / p ∈ [2, 4]</div>
+        <div class="text-xs text-slate-500 mt-0.5">Minimal scheduling tax</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="flex flex-wrap gap-2 mb-6">
+    <button onclick="switchTab('tab-volatility')" id="btn-tab-volatility" class="px-5 py-2.5 rounded-xl font-medium text-sm transition active-tab border">
+      📊 Market Cap Volatility (India vs US)
+    </button>
+    <button onclick="switchTab('tab-bollinger')" id="btn-tab-bollinger" class="px-5 py-2.5 rounded-xl font-medium text-sm transition inactive-tab border">
+      📈 Bollinger Bands & Rolling VWAP
+    </button>
+    <button onclick="switchTab('tab-ml')" id="btn-tab-ml" class="px-5 py-2.5 rounded-xl font-medium text-sm transition inactive-tab border">
+      🤖 ML Predictive Invest & Divest
+    </button>
+    <button onclick="switchTab('tab-scaling')" id="btn-tab-scaling" class="px-5 py-2.5 rounded-xl font-medium text-sm transition inactive-tab border">
+      ⚡ Multi-Core Scaling (Prof. Feedback)
+    </button>
+    <button onclick="switchTab('tab-catalyst')" id="btn-tab-catalyst" class="px-5 py-2.5 rounded-xl font-medium text-sm transition inactive-tab border">
+      ⚙️ Catalyst Query Optimization
+    </button>
+    <button onclick="switchTab('tab-architecture')" id="btn-tab-architecture" class="px-5 py-2.5 rounded-xl font-medium text-sm transition inactive-tab border">
+      🏛️ Star Schema Architecture
+    </button>
+    <button onclick="switchTab('tab-gallery')" id="btn-tab-gallery" class="px-5 py-2.5 rounded-xl font-medium text-sm transition inactive-tab border">
+      🖼️ 300-DPI Figure Gallery
+    </button>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 1: MARKET CAP VOLATILITY -->
+  <!-- ========================================================================= -->
+  <section id="tab-volatility" class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Volatility Comparison Chart -->
+      <div class="glass-card rounded-2xl p-6 shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Normalized Volatility Spread across Market Caps</h2>
+            <p class="text-xs text-slate-400">Mean Bollinger Bandwidth (% of Mean Price) — Empirical Proof of Core Hypothesis</p>
+          </div>
+          <span class="text-xs bg-sky-500/20 text-sky-300 px-2.5 py-1 rounded-full border border-sky-500/30 font-mono">1.1M Ticks</span>
+        </div>
+        <div class="relative h-72">
+          <canvas id="volatilityBarChart"></canvas>
+        </div>
+        <div class="mt-4 p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 text-xs text-slate-300 leading-relaxed">
+          <strong class="text-sky-400">Empirical Finding:</strong> Realized volatility is strictly inversely correlated with market capitalization in both Indian NSE (<span class="text-sky-300">Small 3.58% > Mid 2.95% > Large 2.19%</span>) and US NASDAQ (<span class="text-rose-300">Small 4.53% > Mid 4.18% > Large 2.80%</span>).
+        </div>
+      </div>
+
+      <!-- Max Volatility Spike Spreads -->
+      <div class="glass-card rounded-2xl p-6 shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Peak Volatility Spikes & Tail Risk</h2>
+            <p class="text-xs text-slate-400">Maximum recorded bandwidth expansion during intraday liquidity shocks</p>
+          </div>
+          <span class="text-xs bg-rose-500/20 text-rose-300 px-2.5 py-1 rounded-full border border-rose-500/30 font-mono">Tail Risk</span>
+        </div>
+        <div class="relative h-72">
+          <canvas id="spikeBarChart"></canvas>
+        </div>
+        <div class="mt-4 p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 text-xs text-slate-300 leading-relaxed">
+          <strong class="text-rose-400">Tail-Risk Finding:</strong> US Small Caps experienced a catastrophic 262.9% volatility expansion during opening auctions, reflecting fragile order book depth compared to Mega-Cap equities.
+        </div>
+      </div>
+    </div>
+
+    <!-- Volatility Leaderboards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="glass-card rounded-2xl p-6 shadow-xl">
+        <h3 class="text-md font-bold text-sky-400 mb-3 flex items-center gap-2">
+          <span>🇮🇳</span> Top 5 Highest Volatility Equities — India Multi-Cap (NSE)
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="text-slate-400 uppercase bg-slate-900/50 border-b border-slate-700">
+              <tr>
+                <th class="py-2.5 px-3">Ticker</th>
+                <th class="py-2.5 px-3">Market Cap</th>
+                <th class="py-2.5 px-3">Sector</th>
+                <th class="py-2.5 px-3">Avg Volatility</th>
+                <th class="py-2.5 px-3">Peak Spike</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 font-mono">
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">KAYNES</td><td class="py-2 px-3 text-amber-400">Small Cap</td><td class="py-2 px-3 font-sans text-slate-300">Technology</td><td class="py-2 px-3 text-sky-400">4.612%</td><td class="py-2 px-3 text-rose-400">43.73%</td></tr>
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">BSE</td><td class="py-2 px-3 text-amber-400">Small Cap</td><td class="py-2 px-3 font-sans text-slate-300">Financials</td><td class="py-2 px-3 text-sky-400">4.508%</td><td class="py-2 px-3 text-rose-400">34.41%</td></tr>
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">TEJASNET</td><td class="py-2 px-3 text-amber-400">Small Cap</td><td class="py-2 px-3 font-sans text-slate-300">Telecom</td><td class="py-2 px-3 text-sky-400">4.465%</td><td class="py-2 px-3 text-rose-400">63.46%</td></tr>
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">ANGELONE</td><td class="py-2 px-3 text-amber-400">Small Cap</td><td class="py-2 px-3 font-sans text-slate-300">Financials</td><td class="py-2 px-3 text-sky-400">4.347%</td><td class="py-2 px-3 text-rose-400">35.27%</td></tr>
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">AMBER</td><td class="py-2 px-3 text-amber-400">Small Cap</td><td class="py-2 px-3 font-sans text-slate-300">Consumer Durables</td><td class="py-2 px-3 text-sky-400">4.119%</td><td class="py-2 px-3 text-rose-400">33.19%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-3">* 100% of top 5 volatile equities belong to the Small-Cap tier.</p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6 shadow-xl">
+        <h3 class="text-md font-bold text-rose-400 mb-3 flex items-center gap-2">
+          <span>🇺🇸</span> Top 5 Highest Volatility Equities — US Multi-Cap (NASDAQ/S&P)
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="text-slate-400 uppercase bg-slate-900/50 border-b border-slate-700">
+              <tr>
+                <th class="py-2.5 px-3">Ticker</th>
+                <th class="py-2.5 px-3">Market Cap</th>
+                <th class="py-2.5 px-3">Sector</th>
+                <th class="py-2.5 px-3">Avg Volatility</th>
+                <th class="py-2.5 px-3">Peak Spike</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 font-mono">
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">SMTC</td><td class="py-2 px-3 text-amber-400">Small Cap</td><td class="py-2 px-3 font-sans text-slate-300">Semiconductors</td><td class="py-2 px-3 text-rose-400">6.956%</td><td class="py-2 px-3 text-rose-400">82.48%</td></tr>
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">MOD</td><td class="py-2 px-3 text-amber-400">Small Cap</td><td class="py-2 px-3 font-sans text-slate-300">Industrials</td><td class="py-2 px-3 text-rose-400">6.218%</td><td class="py-2 px-3 text-rose-400">72.21%</td></tr>
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">PLAY</td><td class="py-2 px-3 text-amber-400">Small Cap</td><td class="py-2 px-3 font-sans text-slate-300">Entertainment</td><td class="py-2 px-3 text-rose-400">6.135%</td><td class="py-2 px-3 text-rose-400">53.70%</td></tr>
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">ONTO</td><td class="py-2 px-3 text-indigo-400">Mid Cap</td><td class="py-2 px-3 font-sans text-slate-300">Semiconductors</td><td class="py-2 px-3 text-rose-400">6.004%</td><td class="py-2 px-3 text-rose-400">70.87%</td></tr>
+              <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-white">AMBA</td><td class="py-2 px-3 text-amber-400">Small Cap</td><td class="py-2 px-3 font-sans text-slate-300">Semiconductors</td><td class="py-2 px-3 text-rose-400">5.953%</td><td class="py-2 px-3 text-rose-400">58.00%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-3">* High concentration of volatility clustered in semiconductor supply chains.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 2: BOLLINGER BANDS & ROLLING VWAP -->
+  <!-- ========================================================================= -->
+  <section id="tab-bollinger" class="space-y-6 hidden">
+    <div class="glass-card rounded-2xl p-6 shadow-xl">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h2 class="text-lg font-bold text-white">Intraday Rolling Price Envelope & Volatility Channel</h2>
+          <p class="text-xs text-slate-400">20-period Rolling VWAP vs. Upper/Lower Bollinger Bands (±2σ) calculated without shuffle</p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700">
+          <button onclick="setBollingerTicker('RELIANCE')" id="btn-rel" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-600 text-white transition">RELIANCE (Large Cap)</button>
+          <button onclick="setBollingerTicker('BSE')" id="btn-bse" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">BSE (Small Cap)</button>
+        </div>
+      </div>
+
+      <div class="relative h-96">
+        <canvas id="bollingerTimeSeriesChart"></canvas>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-700">
+        <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800">
+          <div class="text-xs text-slate-400 font-semibold uppercase">Sliding Window Specification</div>
+          <div class="text-sm font-mono text-indigo-400 mt-1">rowsBetween(-19, 0)</div>
+          <p class="text-[11px] text-slate-500 mt-1">Guarantees strict historical causality with zero lookahead bias across partitions.</p>
+        </div>
+        <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800">
+          <div class="text-xs text-slate-400 font-semibold uppercase">Zero-Shuffle Co-Partitioning</div>
+          <div class="text-sm font-mono text-emerald-400 mt-1">partitionBy("ticker")</div>
+          <p class="text-[11px] text-slate-500 mt-1">Window evaluation avoids cross-node data exchange by keeping ticker data local.</p>
+        </div>
+        <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800">
+          <div class="text-xs text-slate-400 font-semibold uppercase">Current Ticker Volatility</div>
+          <div id="ticker-vol-stat" class="text-sm font-mono text-sky-400 mt-1">Bandwidth: 0.45% (Tight Channel)</div>
+          <p class="text-[11px] text-slate-500 mt-1">Dynamic band expansion triggers automated regime shift detection alerts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 3: MULTI-CORE SCALING EFFICIENCY (PROF. SIMMHAN'S FEEDBACK) -->
+  <!-- ========================================================================= -->
+  <section id="tab-scaling" class="space-y-6 hidden">
+    <div class="glass-card rounded-2xl p-6 shadow-xl border-l-4 border-l-amber-500">
+      <div class="flex items-start justify-between">
+        <div>
+          <span class="px-2.5 py-1 text-[11px] font-bold rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">Prof. Simmhan's Specific Feedback Addressed</span>
+          <h2 class="text-lg font-bold text-white mt-2">Evaluation of Pseudo-Distributed Multi-Core Scaling Efficiency</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Empirical benchmarking of Spark cores $p \in \{1, 2, 4, 8\}$ across partition counts $N \in \{2, 4, 8, 16, 32, 64, 128\}$ over 500k+ financial records.</p>
+        </div>
+        <span class="text-xs font-mono bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300">benchmark_scaling_results.csv</span>
+      </div>
+
+      <!-- Core Filter Toggle -->
+      <div class="flex items-center gap-2 mt-4">
+        <span class="text-xs font-semibold text-slate-400 uppercase mr-2">Highlight Core Allocation:</span>
+        <button onclick="filterCorePlot('all')" id="btn-core-all" class="px-3 py-1 rounded-md text-xs font-semibold bg-sky-600 text-white">All Cores</button>
+        <button onclick="filterCorePlot(1)" id="btn-core-1" class="px-3 py-1 rounded-md text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white">p = 1 Core</button>
+        <button onclick="filterCorePlot(2)" id="btn-core-2" class="px-3 py-1 rounded-md text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white">p = 2 Cores</button>
+        <button onclick="filterCorePlot(4)" id="btn-core-4" class="px-3 py-1 rounded-md text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white">p = 4 Cores</button>
+        <button onclick="filterCorePlot(8)" id="btn-core-8" class="px-3 py-1 rounded-md text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white">p = 8 Cores</button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <!-- Speedup Chart -->
+        <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Speedup Multiplier $S_p(N) = T_1 / T_p$ vs Partitions ($N$)</h3>
+          <div class="relative h-72">
+            <canvas id="speedupScalingChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Efficiency Chart -->
+        <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Parallel Efficiency $E_p(N) = S_p / p$ (%) vs Partitions ($N$)</h3>
+          <div class="relative h-72">
+            <canvas id="efficiencyScalingChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empirical Table -->
+      <div class="mt-6 overflow-x-auto">
+        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Empirical Execution Measurements (Summary Sample)</h3>
+        <table class="w-full text-xs text-left">
+          <thead class="text-slate-400 uppercase bg-slate-900 border-b border-slate-700 font-mono">
+            <tr>
+              <th class="py-2 px-3">Cores (p)</th>
+              <th class="py-2 px-3">Partitions (N)</th>
+              <th class="py-2 px-3">Ratio (N/p)</th>
+              <th class="py-2 px-3">Execution Time (s)</th>
+              <th class="py-2 px-3">Speedup (S_p)</th>
+              <th class="py-2 px-3">Efficiency (%)</th>
+              <th class="py-2 px-3">Systems Architectural Insight</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 font-mono text-slate-300">
+            <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-slate-300">1</td><td class="py-2 px-3">4</td><td class="py-2 px-3">4.0</td><td class="py-2 px-3 text-sky-400">0.28s</td><td class="py-2 px-3">1.00x</td><td class="py-2 px-3">100.0%</td><td class="py-2 px-3 font-sans text-slate-400 text-[11px]">Optimal baseline on single core.</td></tr>
+            <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-slate-300">1</td><td class="py-2 px-3">128</td><td class="py-2 px-3">128.0</td><td class="py-2 px-3 text-rose-400">0.87s</td><td class="py-2 px-3">1.00x</td><td class="py-2 px-3">100.0%</td><td class="py-2 px-3 font-sans text-rose-400 text-[11px]">Severe over-partitioning task overhead (3.1x slower).</td></tr>
+            <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-emerald-400">2</td><td class="py-2 px-3">2</td><td class="py-2 px-3">1.0</td><td class="py-2 px-3 text-emerald-400">0.15s</td><td class="py-2 px-3 font-bold text-emerald-400">2.26x</td><td class="py-2 px-3 text-emerald-400">113.0%</td><td class="py-2 px-3 font-sans text-emerald-300 text-[11px]">Superlinear speedup due to L3 cache locality.</td></tr>
+            <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-sky-400">4</td><td class="py-2 px-3">16</td><td class="py-2 px-3">4.0</td><td class="py-2 px-3 text-sky-400">0.14s</td><td class="py-2 px-3 font-bold text-sky-400">2.43x</td><td class="py-2 px-3">60.7%</td><td class="py-2 px-3 font-sans text-slate-400 text-[11px]">Balanced multi-task saturation across threads.</td></tr>
+            <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-indigo-400">8</td><td class="py-2 px-3">2</td><td class="py-2 px-3">0.25</td><td class="py-2 px-3 text-indigo-400">0.12s</td><td class="py-2 px-3 font-bold text-indigo-400">2.86x</td><td class="py-2 px-3">35.8%</td><td class="py-2 px-3 font-sans text-indigo-300 text-[11px]">Fastest absolute completion time across all configurations.</td></tr>
+            <tr class="hover:bg-slate-800/40"><td class="py-2 px-3 font-bold text-indigo-400">8</td><td class="py-2 px-3">128</td><td class="py-2 px-3">16.0</td><td class="py-2 px-3 text-rose-400">0.60s</td><td class="py-2 px-3">1.47x</td><td class="py-2 px-3 text-rose-400">18.3%</td><td class="py-2 px-3 font-sans text-rose-400 text-[11px]">High partition tax: JVM coordination degrades scaling.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 4: CATALYST OPTIMIZER -->
+  <!-- ========================================================================= -->
+  <section id="tab-catalyst" class="space-y-6 hidden">
+    <div class="glass-card rounded-2xl p-6 shadow-xl">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-lg font-bold text-white">Catalyst Physical Query Plan Optimization Profiler</h2>
+          <p class="text-xs text-slate-400">Physical plan profiling verifying Column Pruning, Predicate Pushdown, and Whole-Stage Code Generation</p>
+        </div>
+        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 font-mono">6.64x Acceleration</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="p-5 bg-slate-900 rounded-xl border border-slate-800">
+          <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span> Unoptimized Full Table Scan
+          </h3>
+          <div class="space-y-2 text-xs font-mono text-slate-400">
+            <div class="flex justify-between p-2 bg-slate-800/50 rounded"><span>Scanned Columns:</span><span class="text-slate-200">13 (Entire Row Schema)</span></div>
+            <div class="flex justify-between p-2 bg-slate-800/50 rounded"><span>I/O Memory Footprint:</span><span class="text-slate-200">100% Raw Volume</span></div>
+            <div class="flex justify-between p-2 bg-slate-800/50 rounded"><span>Execution Time:</span><span class="text-rose-400 font-bold">2.021 seconds</span></div>
+            <div class="flex justify-between p-2 bg-slate-800/50 rounded"><span>Catalyst Step:</span><span class="text-slate-300">FileScan parquet [13 columns]</span></div>
+          </div>
+          <div class="mt-4 p-3 bg-slate-800/30 rounded border border-slate-700/50 text-[11px] text-slate-400">
+            <code>*(1) ColumnarToRow<br>+- FileScan parquet [timestamp, open, high, low, close, volume, ticker, ...]<br>   PushedFilters: []</code>
+          </div>
+        </div>
+
+        <div class="p-5 bg-slate-900 rounded-xl border border-emerald-500/30 shadow-lg shadow-emerald-500/5">
+          <h3 class="text-sm font-bold text-emerald-400 mb-3 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Catalyst Column Pruned & Predicate Pushdown Scan
+          </h3>
+          <div class="space-y-2 text-xs font-mono text-slate-400">
+            <div class="flex justify-between p-2 bg-slate-800/50 rounded"><span>Scanned Columns:</span><span class="text-emerald-300 font-bold">2 (ticker, close)</span></div>
+            <div class="flex justify-between p-2 bg-slate-800/50 rounded"><span>I/O Memory Footprint:</span><span class="text-emerald-300 font-bold">-84.6% Reduction</span></div>
+            <div class="flex justify-between p-2 bg-slate-800/50 rounded"><span>Execution Time:</span><span class="text-emerald-400 font-bold">0.304 seconds</span></div>
+            <div class="flex justify-between p-2 bg-slate-800/50 rounded"><span>Catalyst Step:</span><span class="text-emerald-300">PartitionFilters + PushedFilters</span></div>
+          </div>
+          <div class="mt-4 p-3 bg-emerald-950/20 rounded border border-emerald-500/20 text-[11px] text-emerald-300">
+            <code>*(1) Filter (isnotnull(volume#5) AND (volume#5 > 100000.0))<br>+- *(1) ColumnarToRow<br>   +- FileScan parquet [ticker, close]<br>      PartitionFilters: [isnotnull(market_cap_category#13), (market_cap_category#13 = 'Small Cap')]</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 bg-slate-900/60 rounded-xl border border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h4 class="text-sm font-bold text-white">Whole-Stage Code Generation Verified (`codegen id: 1`)</h4>
+          <p class="text-xs text-slate-400 mt-1">Catalyst fuses the projection, filter, and columnar unpack stages into a single JVM bytecode loop, removing iterator virtual function overhead.</p>
+        </div>
+        <div class="text-2xl font-extrabold font-mono text-emerald-400">6.64x Faster</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 5: ARCHITECTURE & STAR SCHEMA -->
+  <!-- ========================================================================= -->
+  <section id="tab-architecture" class="space-y-6 hidden">
+    <div class="glass-card rounded-2xl p-6 shadow-xl">
+      <h2 class="text-lg font-bold text-white mb-2">Distributed Star Schema & Partitioning Topology</h2>
+      <p class="text-xs text-slate-400 mb-6">Optimized for zero-shuffle Broadcast Hash Joins and directory pruning on disk</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <!-- Schema Cards -->
+        <div class="space-y-4 font-mono text-xs">
+          <!-- Dimension -->
+          <div class="p-4 bg-slate-900 rounded-xl border border-indigo-500/40 shadow-lg">
+            <div class="flex justify-between text-indigo-400 font-bold mb-2">
+              <span>DIMENSION: security_master</span>
+              <span class="font-sans text-[11px] bg-indigo-500/20 px-2 py-0.5 rounded">Broadcast Table</span>
+            </div>
+            <ul class="space-y-1 text-slate-300 text-[11px]">
+              <li>🔑 ticker (PK) : VARCHAR(10)</li>
+              <li>• company_name : VARCHAR(60)</li>
+              <li>• market_cap_category : VARCHAR(15) [Large/Mid/Small]</li>
+              <li>• sector : VARCHAR(30)</li>
+            </ul>
+          </div>
+
+          <div class="text-center font-sans font-bold text-xs text-slate-500">
+            ⬇️ 1:N Broadcast Hash Join (Broadcasted to Worker JVMs) ⬇️
+          </div>
+
+          <!-- Fact -->
+          <div class="p-4 bg-slate-900 rounded-xl border border-sky-500/40 shadow-lg">
+            <div class="flex justify-between text-sky-400 font-bold mb-2">
+              <span>FACT: market_ticks_fact</span>
+              <span class="font-sans text-[11px] bg-sky-500/20 px-2 py-0.5 rounded">>2,350,000 Rows</span>
+            </div>
+            <ul class="space-y-1 text-slate-300 text-[11px]">
+              <li>🕒 timestamp (TimeKey) : TIMESTAMP_NTZ</li>
+              <li>🔑 ticker (FK) : VARCHAR(10)</li>
+              <li>• open, high, low, close : DOUBLE</li>
+              <li>• volume : DOUBLE / BIGINT</li>
+              <li>• typical_price, volume_price : DOUBLE</li>
+              <li>📁 Partition Key: /market_cap_category=*/ticker=*/</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Architectural Principles -->
+        <div class="space-y-4 text-xs text-slate-300">
+          <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+            <h4 class="font-bold text-sky-400 mb-1">1. Elimination of Network Shuffle</h4>
+            <p class="text-slate-400 leading-relaxed">
+              Standard joins across multi-gigabyte tick tables trigger wide shuffle dependencies. By broadcasting the dimension table to every executor, joins occur entirely in local memory via BroadcastHashJoin.
+            </p>
+          </div>
+          <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+            <h4 class="font-bold text-emerald-400 mb-1">2. Directory-Level Partition Pruning</h4>
+            <p class="text-slate-400 leading-relaxed">
+              Physical partitioning by <code>market_cap_category</code> allows queries focusing on Small Caps to skip reading entire directory trees on disk, eliminating I/O bottlenecks.
+            </p>
+          </div>
+          <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+            <h4 class="font-bold text-indigo-400 mb-1">3. Native Snappy Columnar Storage</h4>
+            <p class="text-slate-400 leading-relaxed">
+              All fact data is archived in Apache Parquet format with Snappy compression, enabling column-level skipping and bit-packed dictionary encoding.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB: PREDICTIVE MACHINE LEARNING & INVEST/DIVEST SIGNALS -->
+  <!-- ========================================================================= -->
+  <section id="tab-ml" class="space-y-6 hidden">
+    <!-- STAT CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="glass-card rounded-2xl p-5 shadow-lg border-l-4 border-l-emerald-500">
+        <div class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Top Invest Pick (Long)</div>
+        <div class="text-2xl font-bold font-mono text-emerald-400 mt-1">SBIN • +0.255%</div>
+        <div class="text-xs text-slate-400 mt-0.5">State Bank of India (Large Cap)</div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-5 shadow-lg border-l-4 border-l-rose-500">
+        <div class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Top Divest Pick (Exit)</div>
+        <div class="text-2xl font-bold font-mono text-rose-400 mt-1">PERSISTENT • -0.322%</div>
+        <div class="text-xs text-slate-400 mt-0.5">Persistent Systems (Mid Cap IT)</div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-5 shadow-lg border-l-4 border-l-sky-500">
+        <div class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Indian GBT Alpha Engine</div>
+        <div class="text-2xl font-bold font-mono text-sky-400 mt-1">MAE: 0.749%</div>
+        <div class="text-xs text-slate-400 mt-0.5">1,091,060 Bars • RMSE: 1.322%</div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-5 shadow-lg border-l-4 border-l-indigo-500">
+        <div class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Multi-Cap Random Forest</div>
+        <div class="text-2xl font-bold font-mono text-indigo-400 mt-1">82.66% Acc</div>
+        <div class="text-xs text-slate-400 mt-0.5">2,230,499 Bars • F1: 0.748</div>
+      </div>
+    </div>
+
+    <!-- CHARTS GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Chart 1: Indian Equities Expected Alpha Leaderboard -->
+      <div class="glass-card rounded-2xl p-6 shadow-xl lg:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Indian Equities Expected Forward Alpha (% Return)</h2>
+            <p class="text-xs text-slate-400">Gradient-Boosted Trees (GBT) 10-bar forward return forecast across NSE Large, Mid & Small Caps</p>
+          </div>
+          <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full border border-emerald-500/30 font-mono">GBT Regressor</span>
+        </div>
+        <div class="relative h-80">
+          <canvas id="gbtAlphaLeaderboardChart"></canvas>
+        </div>
+        <div class="mt-4 p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 text-xs text-slate-300 flex justify-between items-center">
+          <div><span class="text-emerald-400 font-bold">Invest Boundary:</span> Expected Alpha ≥ +0.10%</div>
+          <div><span class="text-slate-400 font-bold">Neutral:</span> -0.10% to +0.10%</div>
+          <div><span class="text-rose-400 font-bold">Divest Boundary:</span> Expected Alpha ≤ -0.10%</div>
+        </div>
+      </div>
+
+      <!-- Chart 2: Cap Tier Alpha Distribution -->
+      <div class="glass-card rounded-2xl p-6 shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Alpha by Cap Tier</h2>
+            <p class="text-xs text-slate-400">Average expected return spread</p>
+          </div>
+          <span class="text-xs bg-sky-500/20 text-sky-300 px-2.5 py-1 rounded-full border border-sky-500/30 font-mono">NSE Universe</span>
+        </div>
+        <div class="relative h-80">
+          <canvas id="capAlphaChart"></canvas>
+        </div>
+        <div class="mt-4 p-3 bg-slate-900/60 rounded-xl border border-slate-700/50 text-xs text-slate-300 leading-relaxed">
+          <strong class="text-sky-400">Small Cap Premium:</strong> Small Cap equities demonstrated the highest alpha opportunity (+0.045% avg) driven by momentum expansions, while Mid Caps showed mean-reversion pullbacks.
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURE IMPORTANCE & METHODOLOGY -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="glass-card rounded-2xl p-6 shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-white">Machine Learning Factor Importance Ranking</h2>
+            <p class="text-xs text-slate-400">Contribution to forward return prediction (GBT Regressor vs. Random Forest)</p>
+          </div>
+          <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2.5 py-1 rounded-full border border-indigo-500/30 font-mono">Feature Weights</span>
+        </div>
+        <div class="relative h-72">
+          <canvas id="factorImportanceChart"></canvas>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="text-lg font-bold text-white">Quantitative Factor Insights</h2>
+            <span class="text-xs bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/30 font-mono">IISc DA2310</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            The distributed models reveal distinct algorithmic mechanics driving equity alpha across Indian and US exchanges:
+          </p>
+          <ul class="space-y-2 text-xs text-slate-300">
+            <li class="p-2 bg-slate-900/60 rounded-lg border border-slate-800">
+              <strong class="text-sky-400">1. Momentum Dominance (17.16%):</strong> The 5-to-20 period moving average ratio is the single strongest forward alpha driver in Indian equities.
+            </li>
+            <li class="p-2 bg-slate-900/60 rounded-lg border border-slate-800">
+              <strong class="text-indigo-400">2. Intraday Dispersion (15.25%):</strong> High-Low spread ratios capture institutional volume absorption before sharp continuation moves.
+            </li>
+            <li class="p-2 bg-slate-900/60 rounded-lg border border-slate-800">
+              <strong class="text-emerald-400">3. VWAP Mean-Reversion (14.53%):</strong> Price detachment from rolling VWAP acts as a rubber band, producing systematic reversion pullbacks.
+            </li>
+          </ul>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
+          <span>Trained with PySpark MLlib on 2.23M rows</span>
+          <span class="font-mono text-sky-400">src/07 & src/08</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONABLE LIVE RECOMMENDATIONS TABLE -->
+    <div class="glass-card rounded-2xl p-6 shadow-xl">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">Actionable Indian Stock Recommendations (Live Signals)</h2>
+          <p class="text-xs text-slate-400">Rank-ordered by Gradient-Boosted Trees continuous alpha forecasts and risk boundaries</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" id="signalSearchInput" onkeyup="filterSignalsTable()" placeholder="🔍 Search stock or sector..." class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500">
+          <button onclick="filterSignalCategory('ALL')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">All</button>
+          <button onclick="filterSignalCategory('INVEST')" class="px-3 py-1.5 rounded-lg text-xs bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 font-medium">Invest</button>
+          <button onclick="filterSignalCategory('DIVEST')" class="px-3 py-1.5 rounded-lg text-xs bg-rose-600/30 text-rose-400 border border-rose-500/40 font-medium">Divest</button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs" id="signalsTable">
+          <thead class="bg-slate-900/80 text-slate-400 font-mono uppercase text-[11px] border-b border-slate-800">
+            <tr>
+              <th class="p-3">Ticker</th>
+              <th class="p-3">Company</th>
+              <th class="p-3">Tier</th>
+              <th class="p-3">Sector</th>
+              <th class="p-3 text-right">Close (₹)</th>
+              <th class="p-3 text-right">Expected Alpha</th>
+              <th class="p-3 text-center">Action Signal</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 font-mono" id="signalsTableBody">
+            <!-- Populated via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 6: PUBLICATION FIGURES GALLERY -->
+  <!-- ========================================================================= -->
+  <section id="tab-gallery" class="space-y-6 hidden">
+    <div class="glass-card rounded-2xl p-6 shadow-xl">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-lg font-bold text-white">Publication Figures (300 DPI Exported)</h2>
+          <p class="text-xs text-slate-400">High-resolution standalone PNGs generated by <code>src/06_visualize_results.py</code> for the final report and slide deck</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Fig 1 -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-xs font-bold text-sky-400 uppercase mb-2">Figure 1: Bollinger Bands & Rolling VWAP</h3>
+          <img src="figures/fig1_bollinger_vwap_envelope.png" alt="Figure 1" class="rounded-lg border border-slate-700 w-full hover:scale-[1.02] transition duration-300">
+          <p class="text-[11px] text-slate-400 mt-2 font-mono">figures/fig1_bollinger_vwap_envelope.png</p>
+        </div>
+
+        <!-- Fig 2 -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-xs font-bold text-sky-400 uppercase mb-2">Figure 2: Multi-Cap Volatility Comparison</h3>
+          <img src="figures/fig2_market_cap_volatility_comparison.png" alt="Figure 2" class="rounded-lg border border-slate-700 w-full hover:scale-[1.02] transition duration-300">
+          <p class="text-[11px] text-slate-400 mt-2 font-mono">figures/fig2_market_cap_volatility_comparison.png</p>
+        </div>
+
+        <!-- Fig 3 -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-xs font-bold text-sky-400 uppercase mb-2">Figure 3: Catalyst Optimizer Speedup</h3>
+          <img src="figures/fig3_catalyst_optimizer_speedup.png" alt="Figure 3" class="rounded-lg border border-slate-700 w-full hover:scale-[1.02] transition duration-300">
+          <p class="text-[11px] text-slate-400 mt-2 font-mono">figures/fig3_catalyst_optimizer_speedup.png</p>
+        </div>
+
+        <!-- Fig 4 -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-xs font-bold text-sky-400 uppercase mb-2">Figure 4: Multi-Core Scaling Efficiency</h3>
+          <img src="figures/fig4_multicore_scaling_curves.png" alt="Figure 4" class="rounded-lg border border-slate-700 w-full hover:scale-[1.02] transition duration-300">
+          <p class="text-[11px] text-slate-400 mt-2 font-mono">figures/fig4_multicore_scaling_curves.png</p>
+        </div>
+
+        <!-- Fig 5 -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-xs font-bold text-sky-400 uppercase mb-2">Figure 5: ML Factor Importance Ranking</h3>
+          <img src="figures/fig5_ml_feature_importances.png" alt="Figure 5" class="rounded-lg border border-slate-700 w-full hover:scale-[1.02] transition duration-300">
+          <p class="text-[11px] text-slate-400 mt-2 font-mono">figures/fig5_ml_feature_importances.png</p>
+        </div>
+
+        <!-- Fig 6 -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+          <h3 class="text-xs font-bold text-sky-400 uppercase mb-2">Figure 6: Indian Equities Invest vs. Divest Alpha Rankings</h3>
+          <img src="figures/fig6_indian_equities_alpha_rankings.png" alt="Figure 6" class="rounded-lg border border-slate-700 w-full hover:scale-[1.02] transition duration-300">
+          <p class="text-[11px] text-slate-400 mt-2 font-mono">figures/fig6_indian_equities_alpha_rankings.png</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="mt-auto pt-8 pb-4 text-center text-xs text-slate-500 border-t border-slate-800/60">
+    DA2310: Data Engineering at Scale • Department of Computational and Data Sciences (CDS) • Indian Institute of Science (IISc), Bangalore
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Tab Switching
+    function switchTab(tabId) {
+      const tabs = ['tab-volatility', 'tab-bollinger', 'tab-ml', 'tab-scaling', 'tab-catalyst', 'tab-architecture', 'tab-gallery'];
+      tabs.forEach(t => {
+        const el = document.getElementById(t);
+        const btn = document.getElementById('btn-' + t);
+        if (t === tabId) {
+          el.classList.remove('hidden');
+          btn.className = "px-5 py-2.5 rounded-xl font-medium text-sm transition active-tab border";
+        } else {
+          el.classList.add('hidden');
+          btn.className = "px-5 py-2.5 rounded-xl font-medium text-sm transition inactive-tab border";
+        }
+      });
+    }
+
+    // Chart.js Theme Defaults
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = 'Inter';
+
+    // 1. Volatility Bar Chart
+    new Chart(document.getElementById('volatilityBarChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Large Cap', 'Mid Cap', 'Small Cap'],
+        datasets: [
+          {
+            label: 'India Multi-Cap (NSE)',
+            data: [2.188, 2.947, 3.581],
+            backgroundColor: '#0284c7',
+            borderRadius: 6
+          },
+          {
+            label: 'US Multi-Cap (NASDAQ/S&P)',
+            data: [2.795, 4.180, 4.532],
+            backgroundColor: '#e11d48',
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { grid: { color: '#1e293b' } },
+          y: { grid: { color: '#1e293b' }, ticks: { callback: v => v + '%' } }
+        }
+      }
+    });
+
+    // 2. Spike Bar Chart
+    new Chart(document.getElementById('spikeBarChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Large Cap', 'Mid Cap', 'Small Cap'],
+        datasets: [
+          {
+            label: 'India (NSE) Peak Spike',
+            data: [36.71, 45.55, 63.46],
+            backgroundColor: '#0284c7',
+            borderRadius: 6
+          },
+          {
+            label: 'US (NASDAQ) Peak Spike',
+            data: [58.66, 97.06, 262.90],
+            backgroundColor: '#e11d48',
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          x: { grid: { color: '#1e293b' } },
+          y: { grid: { color: '#1e293b' }, ticks: { callback: v => v + '%' } }
+        }
+      }
+    });
+
+    // 3. Intraday Bollinger Bands & Rolling VWAP (Interactive)
+    const timeSeriesData = {
+      "RELIANCE": {
+        times: ["09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:24"],
+        close: [1221.4, 1219.6, 1223.5, 1225.4, 1222.5, 1220.9, 1220.4, 1219.1, 1218.7, 1220.0, 1221.5, 1221.4, 1219.8, 1220.6, 1222.0, 1220.7, 1221.4, 1220.2, 1217.7, 1218.2, 1217.6, 1219.3, 1219.5, 1220.5, 1222.0, 1221.5, 1221.6],
+        upper: [1222.6, 1222.4, 1223.7, 1225.4, 1225.4, 1225.1, 1224.9, 1224.8, 1224.7, 1224.5, 1224.5, 1224.4, 1224.3, 1224.1, 1224.1, 1224.1, 1224.2, 1224.1, 1224.3, 1224.3, 1224.4, 1224.0, 1222.9, 1222.5, 1222.7, 1222.9, 1223.2],
+        lower: [1218.4, 1218.4, 1217.9, 1217.2, 1217.5, 1217.6, 1217.7, 1217.5, 1217.2, 1217.2, 1217.4, 1217.5, 1217.5, 1217.7, 1217.7, 1217.7, 1217.9, 1218.0, 1217.5, 1217.1, 1216.8, 1216.8, 1217.4, 1217.5, 1217.4, 1217.5, 1217.7],
+        vwap: [1220.5, 1220.5, 1220.6, 1220.7, 1220.8, 1220.8, 1220.8, 1220.7, 1220.7, 1220.6, 1220.6, 1220.6, 1220.6, 1220.5, 1220.5, 1220.5, 1220.5, 1220.6, 1220.4, 1220.5, 1220.4, 1220.3, 1220.1, 1220.0, 1220.1, 1220.1, 1220.2],
+        stat: "Bandwidth: 0.45% (Tight Range-Bound Oscillation)"
+      },
+      "BSE": {
+        times: ["09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:26"],
+        close: [3187.2, 3195.0, 3201.0, 3170.1, 3177.1, 3160.2, 3165.8, 3171.7, 3175.0, 3182.6, 3182.9, 3177.0, 3168.7, 3166.5, 3166.5, 3162.7, 3180.4, 3183.9, 3173.9, 3168.6, 3172.0, 3170.0, 3167.7, 3172.0, 3176.0, 3183.0, 3174.8],
+        upper: [3189.7, 3195.7, 3202.1, 3203.0, 3201.9, 3204.1, 3203.7, 3202.5, 3201.4, 3200.9, 3200.5, 3199.7, 3199.2, 3198.1, 3198.0, 3197.7, 3197.3, 3197.3, 3197.2, 3195.8, 3192.4, 3185.8, 3185.8, 3185.4, 3185.1, 3186.4, 3186.1],
+        lower: [3176.1, 3173.5, 3171.2, 3166.6, 3166.2, 3159.7, 3157.4, 3157.2, 3157.6, 3158.5, 3159.4, 3159.8, 3159.1, 3158.2, 3156.8, 3155.0, 3155.0, 3155.0, 3154.9, 3154.4, 3155.4, 3158.9, 3158.7, 3158.6, 3160.5, 3161.2, 3161.3],
+        vwap: [3182.7, 3184.1, 3185.1, 3184.7, 3184.5, 3183.6, 3182.9, 3182.6, 3182.4, 3182.3, 3182.3, 3182.2, 3182.0, 3180.1, 3179.7, 3179.3, 3179.2, 3179.3, 3177.9, 3177.2, 3175.7, 3174.1, 3173.6, 3173.3, 3174.1, 3174.9, 3174.6],
+        stat: "Bandwidth: 4.51% (High-Beta Volatility Breakout Channel)"
+      }
+    };
+
+    let bollingerChart = null;
+    function renderBollingerChart(ticker) {
+      const data = timeSeriesData[ticker];
+      const ctx = document.getElementById('bollingerTimeSeriesChart').getContext('2d');
+      if (bollingerChart) bollingerChart.destroy();
+
+      bollingerChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.times,
+          datasets: [
+            {
+              label: 'Close Price',
+              data: data.close,
+              borderColor: '#38bdf8',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              tension: 0.2
+            },
+            {
+              label: '20-Period Rolling VWAP',
+              data: data.vwap,
+              borderColor: '#f59e0b',
+              borderDash: [5, 5],
+              borderWidth: 1.5,
+              tension: 0.2
+            },
+            {
+              label: 'Bollinger Upper (+2σ)',
+              data: data.upper,
+              borderColor: '#a855f7',
+              borderDash: [2, 2],
+              borderWidth: 1,
+              tension: 0.2
+            },
+            {
+              label: 'Bollinger Lower (-2σ)',
+              data: data.lower,
+              borderColor: '#a855f7',
+              borderDash: [2, 2],
+              borderWidth: 1,
+              fill: '-1',
+              backgroundColor: 'rgba(168, 85, 247, 0.08)',
+              tension: 0.2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { color: '#1e293b' } },
+            y: { grid: { color: '#1e293b' } }
+          }
+        }
+      });
+      document.getElementById('ticker-vol-stat').innerText = data.stat;
+    }
+
+    function setBollingerTicker(t) {
+      if (t === 'RELIANCE') {
+        document.getElementById('btn-rel').className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-600 text-white transition";
+        document.getElementById('btn-bse').className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
+      } else {
+        document.getElementById('btn-rel').className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
+        document.getElementById('btn-bse').className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 text-white transition";
+      }
+      renderBollingerChart(t);
+    }
+    renderBollingerChart('RELIANCE');
+
+    // 4. Scaling Charts (Empirical data from benchmark_scaling_results.csv)
+    const rawScalingData = [
+      { p: 1, N: 2, S: 1.0, E: 100.0 }, { p: 1, N: 4, S: 1.0, E: 100.0 }, { p: 1, N: 8, S: 1.0, E: 100.0 }, { p: 1, N: 16, S: 1.0, E: 100.0 }, { p: 1, N: 32, S: 1.0, E: 100.0 }, { p: 1, N: 64, S: 1.0, E: 100.0 }, { p: 1, N: 128, S: 1.0, E: 100.0 },
+      { p: 2, N: 2, S: 2.26, E: 113.0 }, { p: 2, N: 4, S: 1.79, E: 89.3 }, { p: 2, N: 8, S: 1.81, E: 90.5 }, { p: 2, N: 16, S: 1.85, E: 92.6 }, { p: 2, N: 32, S: 1.74, E: 87.0 }, { p: 2, N: 64, S: 1.76, E: 88.0 }, { p: 2, N: 128, S: 1.65, E: 82.5 },
+      { p: 4, N: 2, S: 2.61, E: 65.3 }, { p: 4, N: 4, S: 2.17, E: 54.3 }, { p: 4, N: 8, S: 2.31, E: 57.7 }, { p: 4, N: 16, S: 2.43, E: 60.7 }, { p: 4, N: 32, S: 2.32, E: 58.1 }, { p: 4, N: 64, S: 2.15, E: 53.7 }, { p: 4, N: 128, S: 1.80, E: 45.1 },
+      { p: 8, N: 2, S: 2.86, E: 35.8 }, { p: 8, N: 4, S: 2.43, E: 30.3 }, { p: 8, N: 8, S: 2.45, E: 30.6 }, { p: 8, N: 16, S: 2.15, E: 26.9 }, { p: 8, N: 32, S: 2.02, E: 25.3 }, { p: 8, N: 64, S: 1.76, E: 22.0 }, { p: 8, N: 128, S: 1.47, E: 18.3 }
+    ];
+
+    const partitionLabels = ['2', '4', '8', '16', '32', '64', '128'];
+    const colors = { 1: '#64748b', 2: '#0284c7', 4: '#10b981', 8: '#a855f7' };
+
+    let speedupChart = null;
+    let efficiencyChart = null;
+
+    function renderScalingPlots(filterCore) {
+      const cores = filterCore === 'all' ? [1, 2, 4, 8] : [parseInt(filterCore)];
+
+      const speedupDatasets = cores.map(c => ({
+        label: `${c} Cores (Measured)`,
+        data: rawScalingData.filter(d => d.p === c).map(d => d.S),
+        borderColor: colors[c],
+        backgroundColor: colors[c],
+        borderWidth: 2,
+        tension: 0.2
+      }));
+
+      const efficiencyDatasets = cores.map(c => ({
+        label: `${c} Cores`,
+        data: rawScalingData.filter(d => d.p === c).map(d => d.E),
+        borderColor: colors[c],
+        backgroundColor: colors[c],
+        borderWidth: 2,
+        tension: 0.2
+      }));
+
+      if (speedupChart) speedupChart.destroy();
+      if (efficiencyChart) efficiencyChart.destroy();
+
+      speedupChart = new Chart(document.getElementById('speedupScalingChart'), {
+        type: 'line',
+        data: { labels: partitionLabels, datasets: speedupDatasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: 'Spark Partitions (N)' }, grid: { color: '#1e293b' } },
+            y: { title: { display: true, text: 'Speedup Multiplier (S_p)' }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+
+      efficiencyChart = new Chart(document.getElementById('efficiencyScalingChart'), {
+        type: 'line',
+        data: { labels: partitionLabels, datasets: efficiencyDatasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: 'Spark Partitions (N)' }, grid: { color: '#1e293b' } },
+            y: { title: { display: true, text: 'Efficiency (%)' }, grid: { color: '#1e293b' }, ticks: { callback: v => v + '%' } }
+          }
+        }
+      });
+    }
+
+    function filterCorePlot(c) {
+      ['all', 1, 2, 4, 8].forEach(id => {
+        const btn = document.getElementById('btn-core-' + id);
+        if (id.toString() === c.toString()) {
+          btn.className = "px-3 py-1 rounded-md text-xs font-semibold bg-sky-600 text-white";
+        } else {
+          btn.className = "px-3 py-1 rounded-md text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white";
+        }
+      });
+      renderScalingPlots(c);
+    }
+    renderScalingPlots('all');
+
+    // =========================================================================
+    // ML PREDICTIVE ENGINE (TAB-ML) CHARTS & SIGNALS TABLE
+    // =========================================================================
+    const rawSignalsData = [
+      { ticker: "SBIN", name: "State Bank of India", cap: "Large Cap", sector: "Financials", close: 1165.10, alpha: 0.255, signal: "STRONG INVEST (LONG)" },
+      { ticker: "HDFCBANK", name: "HDFC Bank", cap: "Large Cap", sector: "Financials", close: 846.00, alpha: 0.252, signal: "STRONG INVEST (LONG)" },
+      { ticker: "ROUTE", name: "Route Mobile", cap: "Small Cap", sector: "Technology", close: 416.00, alpha: 0.240, signal: "MODERATE ACCUMULATE" },
+      { ticker: "CEATLTD", name: "CEAT Limited", cap: "Small Cap", sector: "Automobile", close: 3528.00, alpha: 0.214, signal: "MODERATE ACCUMULATE" },
+      { ticker: "TEJASNET", name: "Tejas Networks", cap: "Small Cap", sector: "Telecom", close: 399.50, alpha: 0.190, signal: "MODERATE ACCUMULATE" },
+      { ticker: "CENTURYPLY", name: "Century Plyboards", cap: "Small Cap", sector: "Building Materials", close: 659.50, alpha: 0.181, signal: "MODERATE ACCUMULATE" },
+      { ticker: "TATAPOWER", name: "Tata Power", cap: "Mid Cap", sector: "Utilities", close: 339.70, alpha: 0.164, signal: "MODERATE ACCUMULATE" },
+      { ticker: "SUNPHARMA", name: "Sun Pharma", cap: "Large Cap", sector: "Healthcare", close: 1884.90, alpha: 0.140, signal: "MODERATE ACCUMULATE" },
+      { ticker: "JUBLFOOD", name: "Jubilant FoodWorks", cap: "Mid Cap", sector: "Consumer Goods", close: 424.70, alpha: 0.134, signal: "MODERATE ACCUMULATE" },
+      { ticker: "KPITTECH", name: "KPIT Technologies", cap: "Small Cap", sector: "Technology", close: 519.00, alpha: 0.120, signal: "MODERATE ACCUMULATE" },
+      { ticker: "ASHOKLEY", name: "Ashok Leyland", cap: "Mid Cap", sector: "Automobile", close: 163.35, alpha: 0.102, signal: "MODERATE ACCUMULATE" },
+      { ticker: "RELIANCE", name: "Reliance Industries", cap: "Large Cap", sector: "Energy", close: 1377.50, alpha: 0.101, signal: "MODERATE ACCUMULATE" },
+      { ticker: "ZENSARTECH", name: "Zensar Technologies", cap: "Small Cap", sector: "Technology", close: 529.00, alpha: 0.099, signal: "HOLD / NEUTRAL" },
+      { ticker: "DEEPAKNTR", name: "Deepak Nitrite", cap: "Mid Cap", sector: "Chemicals", close: 1535.00, alpha: 0.071, signal: "HOLD / NEUTRAL" },
+      { ticker: "SUZLON", name: "Suzlon Energy", cap: "Small Cap", sector: "Utilities", close: 36.96, alpha: 0.071, signal: "HOLD / NEUTRAL" },
+      { ticker: "TCS", name: "Tata Consultancy Services", cap: "Large Cap", sector: "Technology", close: 2376.20, alpha: 0.061, signal: "HOLD / NEUTRAL" },
+      { ticker: "HINDUNILVR", name: "Hindustan Unilever", cap: "Large Cap", sector: "Consumer Goods", close: 2052.50, alpha: 0.060, signal: "HOLD / NEUTRAL" },
+      { ticker: "GODREJPROP", name: "Godrej Properties", cap: "Mid Cap", sector: "Real Estate", close: 1930.20, alpha: 0.057, signal: "HOLD / NEUTRAL" },
+      { ticker: "CDSL", name: "Central Depository Services", cap: "Small Cap", sector: "Financials", close: 1430.00, alpha: 0.054, signal: "HOLD / NEUTRAL" },
+      { ticker: "AXISBANK", name: "Axis Bank", cap: "Large Cap", sector: "Financials", close: 1446.00, alpha: 0.043, signal: "HOLD / NEUTRAL" },
+      { ticker: "IDFCFIRSTB", name: "IDFC First Bank", cap: "Mid Cap", sector: "Financials", close: 87.26, alpha: -0.091, signal: "HOLD / NEUTRAL" },
+      { ticker: "INFY", name: "Infosys", cap: "Large Cap", sector: "Technology", close: 1098.00, alpha: -0.122, signal: "MODERATE REDUCE" },
+      { ticker: "SONACOMS", name: "Sona BLW", cap: "Small Cap", sector: "Automobile", close: 892.50, alpha: -0.124, signal: "MODERATE REDUCE" },
+      { ticker: "LT", name: "Larsen & Toubro", cap: "Large Cap", sector: "Construction", close: 4209.10, alpha: -0.145, signal: "MODERATE REDUCE" },
+      { ticker: "ASTRAL", name: "Astral Limited", cap: "Mid Cap", sector: "Building Materials", close: 1252.60, alpha: -0.147, signal: "MODERATE REDUCE" },
+      { ticker: "OBEROIRLTY", name: "Oberoi Realty", cap: "Mid Cap", sector: "Real Estate", close: 1843.00, alpha: -0.232, signal: "MODERATE REDUCE" },
+      { ticker: "PVRINOX", name: "PVR INOX", cap: "Small Cap", sector: "Media & Ent.", close: 1652.20, alpha: -0.237, signal: "MODERATE REDUCE" },
+      { ticker: "ITC", name: "ITC Limited", cap: "Large Cap", sector: "Consumer Goods", close: 299.10, alpha: -0.246, signal: "MODERATE REDUCE" },
+      { ticker: "MPHASIS", name: "Mphasis", cap: "Mid Cap", sector: "Technology", close: 2420.00, alpha: -0.307, signal: "STRONG DIVEST (SELL/EXIT)" },
+      { ticker: "PERSISTENT", name: "Persistent Systems", cap: "Mid Cap", sector: "Technology", close: 6124.00, alpha: -0.322, signal: "STRONG DIVEST (SELL/EXIT)" }
+    ];
+
+    let currentSignalFilter = 'ALL';
+
+    function renderSignalsTable(filter = 'ALL', query = '') {
+      const tbody = document.getElementById('signalsTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const filtered = rawSignalsData.filter(item => {
+        const matchesQuery = item.ticker.toLowerCase().includes(query.toLowerCase()) || 
+                             item.name.toLowerCase().includes(query.toLowerCase()) ||
+                             item.sector.toLowerCase().includes(query.toLowerCase());
+        if (!matchesQuery) return false;
+        if (filter === 'INVEST') return item.alpha >= 0.10;
+        if (filter === 'DIVEST') return item.alpha <= -0.10;
+        return true;
+      });
+
+      filtered.forEach(row => {
+        let badgeClass = "bg-slate-700/40 text-slate-400 border border-slate-700";
+        if (row.signal.includes("STRONG INVEST")) badgeClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold";
+        else if (row.signal.includes("ACCUMULATE")) badgeClass = "bg-teal-500/20 text-teal-300 border border-teal-500/30 font-semibold";
+        else if (row.signal.includes("STRONG DIVEST")) badgeClass = "bg-rose-500/20 text-rose-400 border border-rose-500/40 font-bold";
+        else if (row.signal.includes("REDUCE")) badgeClass = "bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold";
+
+        let capBadge = "bg-sky-500/10 text-sky-400 border-sky-500/20";
+        if (row.cap === "Mid Cap") capBadge = "bg-purple-500/10 text-purple-400 border-purple-500/20";
+        if (row.cap === "Small Cap") capBadge = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+
+        const alphaColor = row.alpha >= 0 ? "text-emerald-400" : "text-rose-400";
+        const sign = row.alpha >= 0 ? "+" : "";
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/40 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white">${row.ticker}</td>
+          <td class="p-3 text-slate-300 font-sans">${row.name}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] border ${capBadge}">${row.cap}</span></td>
+          <td class="p-3 text-slate-400 font-sans">${row.sector}</td>
+          <td class="p-3 text-right text-slate-200">₹${row.close.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+          <td class="p-3 text-right font-bold ${alphaColor}">${sign}${row.alpha.toFixed(3)}%</td>
+          <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-full text-[10px] ${badgeClass}">${row.signal}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterSignalCategory(cat) {
+      currentSignalFilter = cat;
+      const q = document.getElementById('signalSearchInput') ? document.getElementById('signalSearchInput').value : '';
+      renderSignalsTable(cat, q);
+    }
+
+    function filterSignalsTable() {
+      const q = document.getElementById('signalSearchInput').value;
+      renderSignalsTable(currentSignalFilter, q);
+    }
+
+    // Chart 1: GBT Alpha Leaderboard
+    new Chart(document.getElementById('gbtAlphaLeaderboardChart'), {
+      type: 'bar',
+      data: {
+        labels: [
+          'SBIN (+0.255%)', 'HDFCBANK (+0.252%)', 'ROUTE (+0.240%)', 'CEATLTD (+0.214%)', 'TEJASNET (+0.190%)',
+          'TATAPOWER (+0.164%)', 'SUNPHARMA (+0.140%)', 'JUBLFOOD (+0.134%)',
+          'LT (-0.145%)', 'ASTRAL (-0.147%)', 'OBEROIRLTY (-0.232%)', 'PVRINOX (-0.237%)',
+          'ITC (-0.246%)', 'MPHASIS (-0.307%)', 'PERSISTENT (-0.322%)'
+        ],
+        datasets: [{
+          label: 'Expected Forward Alpha (%)',
+          data: [0.255, 0.252, 0.240, 0.214, 0.190, 0.164, 0.140, 0.134, -0.145, -0.147, -0.232, -0.237, -0.246, -0.307, -0.322],
+          backgroundColor: [
+            '#10b981', '#10b981', '#10b981', '#10b981', '#10b981', '#10b981', '#10b981', '#10b981',
+            '#f43f5e', '#f43f5e', '#f43f5e', '#f43f5e', '#f43f5e', '#f43f5e', '#f43f5e'
+          ],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { 
+            grid: { color: '#1e293b' },
+            ticks: { callback: v => (v > 0 ? '+' : '') + v + '%' }
+          },
+          y: { grid: { display: false } }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+    // Chart 2: Cap Tier Alpha Distribution
+    new Chart(document.getElementById('capAlphaChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Small Cap', 'Large Cap', 'Mid Cap'],
+        datasets: [{
+          label: 'Average Alpha (%)',
+          data: [0.045, 0.004, -0.036],
+          backgroundColor: ['#10b981', '#0284c7', '#f43f5e'],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { 
+            grid: { color: '#1e293b' },
+            ticks: { callback: v => (v > 0 ? '+' : '') + v + '%' }
+          },
+          x: { grid: { display: false } }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+    // Chart 3: Factor Importance
+    new Chart(document.getElementById('factorImportanceChart'), {
+      type: 'bar',
+      data: {
+        labels: [
+          'Momentum (5 vs 20)', 'High-Low Spread', 'VWAP Deviation',
+          'Return Volatility', 'Bandwidth %', 'Bollinger %B',
+          'Volume Surge', 'Sector', 'Cap Tier'
+        ],
+        datasets: [
+          {
+            label: 'Indian GBT Regressor (%)',
+            data: [17.16, 15.25, 14.53, 12.63, 9.14, 9.32, 8.73, 8.21, 5.02],
+            backgroundColor: '#0284c7',
+            borderRadius: 6
+          },
+          {
+            label: 'Random Forest Multi-Cap (%)',
+            data: [17.35, 34.48, 7.50, 0.00, 30.64, 0.12, 8.81, 0.03, 1.06],
+            backgroundColor: '#10b981',
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { grid: { color: '#1e293b' }, ticks: { callback: v => v + '%' } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+
+    // Initialize Signals Table
+    renderSignalsTable('ALL', '');
+  </script>
+</body>
+</html>

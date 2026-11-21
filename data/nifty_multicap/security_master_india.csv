@@ -1,0 +1,61 @@
+ticker,name,cap,sector,clean_ticker
+RELIANCE.NS,Reliance Industries,Large Cap,Energy,RELIANCE
+TCS.NS,Tata Consultancy Services,Large Cap,Technology,TCS
+HDFCBANK.NS,HDFC Bank,Large Cap,Financials,HDFCBANK
+INFY.NS,Infosys,Large Cap,Technology,INFY
+ICICIBANK.NS,ICICI Bank,Large Cap,Financials,ICICIBANK
+HINDUNILVR.NS,Hindustan Unilever,Large Cap,Consumer Goods,HINDUNILVR
+ITC.NS,ITC Limited,Large Cap,Consumer Goods,ITC
+SBIN.NS,State Bank of India,Large Cap,Financials,SBIN
+BHARTIARTL.NS,Bharti Airtel,Large Cap,Telecom,BHARTIARTL
+LT.NS,Larsen & Toubro,Large Cap,Construction,LT
+BAJFINANCE.NS,Bajaj Finance,Large Cap,Financials,BAJFINANCE
+TATAMOTORS.NS,Tata Motors,Large Cap,Automobile,TATAMOTORS
+MARUTI.NS,Maruti Suzuki,Large Cap,Automobile,MARUTI
+SUNPHARMA.NS,Sun Pharma,Large Cap,Healthcare,SUNPHARMA
+AXISBANK.NS,Axis Bank,Large Cap,Financials,AXISBANK
+TITAN.NS,Titan Company,Large Cap,Consumer Goods,TITAN
+ONGC.NS,ONGC,Large Cap,Energy,ONGC
+NTPC.NS,NTPC Limited,Large Cap,Utilities,NTPC
+TATASTEEL.NS,Tata Steel,Large Cap,Materials,TATASTEEL
+KOTAKBANK.NS,Kotak Mahindra Bank,Large Cap,Financials,KOTAKBANK
+POLYCAB.NS,Polycab India,Mid Cap,Capital Goods,POLYCAB
+TRENT.NS,Trent Limited,Mid Cap,Consumer Goods,TRENT
+TATAPOWER.NS,Tata Power,Mid Cap,Utilities,TATAPOWER
+FEDERALBNK.NS,Federal Bank,Mid Cap,Financials,FEDERALBNK
+VOLTAS.NS,Voltas Limited,Mid Cap,Consumer Goods,VOLTAS
+JUBLFOOD.NS,Jubilant FoodWorks,Mid Cap,Consumer Goods,JUBLFOOD
+COFORGE.NS,Coforge,Mid Cap,Technology,COFORGE
+PERSISTENT.NS,Persistent Systems,Mid Cap,Technology,PERSISTENT
+MPHASIS.NS,Mphasis,Mid Cap,Technology,MPHASIS
+ASTRAL.NS,Astral Limited,Mid Cap,Building Materials,ASTRAL
+AUROPHARMA.NS,Aurobindo Pharma,Mid Cap,Healthcare,AUROPHARMA
+BHARATFORG.NS,Bharat Forge,Mid Cap,Automobile,BHARATFORG
+ASHOKLEY.NS,Ashok Leyland,Mid Cap,Automobile,ASHOKLEY
+CUMMINSIND.NS,Cummins India,Mid Cap,Capital Goods,CUMMINSIND
+IDFCFIRSTB.NS,IDFC First Bank,Mid Cap,Financials,IDFCFIRSTB
+OBEROIRLTY.NS,Oberoi Realty,Mid Cap,Real Estate,OBEROIRLTY
+GODREJPROP.NS,Godrej Properties,Mid Cap,Real Estate,GODREJPROP
+PAGEIND.NS,Page Industries,Mid Cap,Textiles,PAGEIND
+DEEPAKNTR.NS,Deepak Nitrite,Mid Cap,Chemicals,DEEPAKNTR
+APOLLOTYRE.NS,Apollo Tyres,Mid Cap,Automobile,APOLLOTYRE
+CDSL.NS,Central Depository Services,Small Cap,Financials,CDSL
+BSE.NS,BSE Limited,Small Cap,Financials,BSE
+ANGELONE.NS,Angel One,Small Cap,Financials,ANGELONE
+HAPPSTMNDS.NS,Happiest Minds,Small Cap,Technology,HAPPSTMNDS
+ROUTE.NS,Route Mobile,Small Cap,Technology,ROUTE
+TANLA.NS,Tanla Platforms,Small Cap,Technology,TANLA
+SONACOMS.NS,Sona BLW,Small Cap,Automobile,SONACOMS
+RADICO.NS,Radico Khaitan,Small Cap,Consumer Goods,RADICO
+KAYNES.NS,Kaynes Technology,Small Cap,Technology,KAYNES
+SUZLON.NS,Suzlon Energy,Small Cap,Utilities,SUZLON
+ZENSARTECH.NS,Zensar Technologies,Small Cap,Technology,ZENSARTECH
+KPITTECH.NS,KPIT Technologies,Small Cap,Technology,KPITTECH
+CENTURYPLY.NS,Century Plyboards,Small Cap,Building Materials,CENTURYPLY
+PVRINOX.NS,PVR INOX,Small Cap,Media & Ent.,PVRINOX
+TEJASNET.NS,Tejas Networks,Small Cap,Telecom,TEJASNET
+LEMONTREE.NS,Lemon Tree Hotels,Small Cap,Hospitality,LEMONTREE
+CEATLTD.NS,CEAT Limited,Small Cap,Automobile,CEATLTD
+CASTROLIND.NS,Castrol India,Small Cap,Oil & Gas,CASTROLIND
+AMBER.NS,Amber Enterprises,Small Cap,Consumer Durables,AMBER
+JBCHEPHARM.NS,JB Chemicals,Small Cap,Healthcare,JBCHEPHARM

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DA2310: Financial Multi-Cap Analytics Dashboard (India vs US)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #090d16;
+      --bg-secondary: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-in: #38bdf8;
+      --accent-us: #f43f5e;
+      --accent-green: #10b981;
+      --accent-purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-main);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .title h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .title p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent-in);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .stat-card.c1::before { background: var(--accent-in); }
+    .stat-card.c2::before { background: var(--accent-us); }
+    .stat-card.c3::before { background: var(--accent-green); }
+    .stat-card.c4::before { background: var(--accent-purple); }
+    .stat-card .label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .val { font-size: 28px; font-weight: 800; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+    .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .chart-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .chart-box h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-box p { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+    .chart-container { position: relative; height: 320px; width: 100%; }
+
+    .image-preview {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .image-preview img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    th {
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text-muted);
+      padding: 10px 14px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--card-border);
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    tr:hover { background: rgba(56, 189, 248, 0.04); }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tag.small { background: rgba(244, 63, 94, 0.15); color: #fda4af; }
+    .tag.mid { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; }
+    .tag.large { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="title">
+      <h1>DA2310: Financial Multi-Cap Analytics Engine</h1>
+      <p>IISc Department of Computational & Data Sciences | Prof. Yogesh Simmhan | Fall 2026</p>
+    </div>
+    <div class="badge">Star Schema Parquet Architecture (>1.1M Rows)</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card c1">
+      <div class="label">Total Records Ingested</div>
+      <div class="val">1,108,937</div>
+      <div class="sub">India: 541,790 | US: 567,147</div>
+    </div>
+    <div class="stat-card c2">
+      <div class="label">Volatility Staircase</div>
+      <div class="val">+63.0%</div>
+      <div class="sub">Small Caps vs Mega-Caps (Statistically Proven)</div>
+    </div>
+    <div class="stat-card c3">
+      <div class="label">Catalyst Pruning Speedup</div>
+      <div class="val">9.00x</div>
+      <div class="sub">Projection pushdown (0.45s vs 4.05s)</div>
+    </div>
+    <div class="stat-card c4">
+      <div class="label">Universe Size</div>
+      <div class="val">120 Equities</div>
+      <div class="sub">60 Indian (NSE) & 60 US (NASDAQ/S&P)</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-box">
+      <h3>Realized Volatility by Market Cap Tier</h3>
+      <p>Average 20-period Bollinger Bandwidth (%) showing the empirical ascending staircase</p>
+      <div class="chart-container">
+        <canvas id="volatilityChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h3>Trading Volume Distribution (Data Skew)</h3>
+      <p>Average shares traded per 5-minute bar (Large Caps dominate volume liquidity)</p>
+      <div class="chart-container">
+        <canvas id="volumeChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h3>Dataset Size Balance by Market Cap</h3>
+      <p>Row counts per tier demonstrating balanced partitioning without straggler partitions</p>
+      <div class="chart-container">
+        <canvas id="recordsChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h3>Market Cap Volatility Matrix</h3>
+      <p>Summary breakdown by category and geography</p>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Market</th>
+              <th>Category</th>
+              <th>Total Rows</th>
+              <th>Mean Volatility</th>
+              <th>Peak Spike</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--accent-in); font-weight:bold;">India (NSE)</td>
+              <td><span class="tag small">Small Cap</span></td>
+              <td>178,003</td>
+              <td><strong>3.58%</strong></td>
+              <td>63.5%</td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent-in); font-weight:bold;">India (NSE)</td>
+              <td><span class="tag mid">Mid Cap</span></td>
+              <td>186,528</td>
+              <td><strong>2.95%</strong></td>
+              <td>45.6%</td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent-in); font-weight:bold;">India (NSE)</td>
+              <td><span class="tag large">Large Cap</span></td>
+              <td>177,259</td>
+              <td><strong>2.19%</strong></td>
+              <td>367.2%</td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent-us); font-weight:bold;">US (NASDAQ)</td>
+              <td><span class="tag small">Small Cap</span></td>
+              <td>186,822</td>
+              <td><strong>4.53%</strong></td>
+              <td>262.9%</td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent-us); font-weight:bold;">US (NASDAQ)</td>
+              <td><span class="tag mid">Mid Cap</span></td>
+              <td>185,094</td>
+              <td><strong>4.18%</strong></td>
+              <td>97.1%</td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent-us); font-weight:bold;">US (NASDAQ)</td>
+              <td><span class="tag large">Large Cap</span></td>
+              <td>195,231</td>
+              <td><strong>2.80%</strong></td>
+              <td>58.7%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="image-preview">
+    <h3 style="margin-bottom: 12px; text-align: left;">High-Resolution Publication Chart:</h3>
+    <img src="market_cap_visual_breakdown.png" alt="Market Cap Visual Breakdown Chart">
+  </div>
+
+  <script>
+    const caps = ['Large Cap', 'Mid Cap', 'Small Cap'];
+    
+    // 1. Volatility Chart
+    new Chart(document.getElementById('volatilityChart'), {
+      type: 'bar',
+      data: {
+        labels: caps,
+        datasets: [
+          {
+            label: 'India (NSE)',
+            data: [2.19, 2.95, 3.58],
+            backgroundColor: 'rgba(56, 189, 248, 0.85)',
+            borderColor: '#38bdf8',
+            borderWidth: 1
+          },
+          {
+            label: 'US (NASDAQ/S&P)',
+            data: [2.80, 4.18, 4.53],
+            backgroundColor: 'rgba(244, 63, 94, 0.85)',
+            borderColor: '#f43f5e',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#94a3b8' } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#f8fafc', font: { weight: 'bold' } } },
+          y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', callback: v => v + '%' } }
+        }
+      }
+    });
+
+    // 2. Volume Skew Chart
+    new Chart(document.getElementById('volumeChart'), {
+      type: 'bar',
+      data: {
+        labels: caps,
+        datasets: [
+          {
+            label: 'India (NSE)',
+            data: [664582, 270833, 327048],
+            backgroundColor: 'rgba(56, 189, 248, 0.85)',
+            borderColor: '#38bdf8',
+            borderWidth: 1
+          },
+          {
+            label: 'US (NASDAQ/S&P)',
+            data: [1999339, 96883, 65488],
+            backgroundColor: 'rgba(244, 63, 94, 0.85)',
+            borderColor: '#f43f5e',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#94a3b8' } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#f8fafc', font: { weight: 'bold' } } },
+          y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', callback: v => (v/1000).toFixed(0) + 'k' } }
+        }
+      }
+    });
+
+    // 3. Records Balance Chart
+    new Chart(document.getElementById('recordsChart'), {
+      type: 'bar',
+      data: {
+        labels: caps,
+        datasets: [
+          {
+            label: 'India (NSE)',
+            data: [177259, 186528, 178003],
+            backgroundColor: 'rgba(56, 189, 248, 0.85)',
+            borderColor: '#38bdf8',
+            borderWidth: 1
+          },
+          {
+            label: 'US (NASDAQ/S&P)',
+            data: [195231, 185094, 186822],
+            backgroundColor: 'rgba(244, 63, 94, 0.85)',
+            borderColor: '#f43f5e',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#94a3b8' } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#f8fafc', font: { weight: 'bold' } } },
+          y: { grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8', callback: v => (v/1000).toFixed(0) + 'k' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

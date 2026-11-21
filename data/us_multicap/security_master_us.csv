@@ -1,0 +1,61 @@
+ticker,name,cap,sector
+AAPL,Apple Inc.,Large Cap,Technology
+MSFT,Microsoft Corp.,Large Cap,Technology
+NVDA,NVIDIA Corp.,Large Cap,Semiconductors
+AMZN,Amazon.com Inc.,Large Cap,Consumer Discretionary
+GOOGL,Alphabet Inc.,Large Cap,Communication Services
+META,Meta Platforms Inc.,Large Cap,Communication Services
+TSLA,Tesla Inc.,Large Cap,Automobile
+JPM,JPMorgan Chase,Large Cap,Financials
+V,Visa Inc.,Large Cap,Financials
+UNH,UnitedHealth Group,Large Cap,Healthcare
+XOM,Exxon Mobil,Large Cap,Energy
+WMT,Walmart Inc.,Large Cap,Consumer Staples
+PG,Procter & Gamble,Large Cap,Consumer Staples
+LLY,Eli Lilly,Large Cap,Healthcare
+AMD,Advanced Micro Devices,Large Cap,Semiconductors
+NFLX,Netflix Inc.,Large Cap,Communication Services
+JNJ,Johnson & Johnson,Large Cap,Healthcare
+HD,Home Depot,Large Cap,Consumer Discretionary
+BAC,Bank of America,Large Cap,Financials
+COST,Costco Wholesale,Large Cap,Consumer Staples
+DECK,Deckers Outdoor,Mid Cap,Consumer Discretionary
+ELF,e.l.f. Beauty,Mid Cap,Consumer Staples
+SAIA,Saia Inc.,Mid Cap,Industrials
+WSM,Williams-Sonoma,Mid Cap,Consumer Discretionary
+MANH,Manhattan Associates,Mid Cap,Technology
+BLDR,Builders FirstSource,Mid Cap,Industrials
+FIX,Comfort Systems USA,Mid Cap,Industrials
+TREX,Trex Company,Mid Cap,Industrials
+ONTO,Onto Innovation,Mid Cap,Semiconductors
+LNW,Light & Wonder,Mid Cap,Gaming / Tech
+CROX,Crocs Inc.,Mid Cap,Consumer Discretionary
+GDDY,GoDaddy Inc.,Mid Cap,Technology
+CHTR,Charter Communications,Mid Cap,Communication Services
+MTCH,Match Group,Mid Cap,Communication Services
+WIX,Wix.com,Mid Cap,Technology
+RGEN,Repligen Corp.,Mid Cap,Healthcare
+FIVE,Five Below,Mid Cap,Consumer Discretionary
+DAR,Darling Ingredients,Mid Cap,Consumer Staples
+COLM,Columbia Sportswear,Mid Cap,Consumer Discretionary
+POST,Post Holdings,Mid Cap,Consumer Staples
+CALX,Calix Inc.,Small Cap,Technology
+POWI,Power Integrations,Small Cap,Semiconductors
+AMBA,Ambarella Inc.,Small Cap,Semiconductors
+SMTC,Semtech Corp.,Small Cap,Semiconductors
+EXTR,Extreme Networks,Small Cap,Technology
+ACAD,ACADIA Pharmaceuticals,Small Cap,Healthcare
+HALO,Halozyme Therapeutics,Small Cap,Healthcare
+KURA,Kura Oncology,Small Cap,Healthcare
+KRYS,Krystal Biotech,Small Cap,Healthcare
+BOOT,Boot Barn Holdings,Small Cap,Consumer Discretionary
+SHOO,Steven Madden,Small Cap,Consumer Discretionary
+PLAY,Dave & Buster's,Small Cap,Entertainment
+SSTK,Shutterstock,Small Cap,Technology
+MOD,Modine Manufacturing,Small Cap,Industrials
+HURN,Huron Consulting,Small Cap,Consulting
+PRDO,Perdoceo Education,Small Cap,Education
+PLUS,ePlus Inc.,Small Cap,Technology
+APAM,Artisan Partners,Small Cap,Financials
+VRRM,Verra Mobility,Small Cap,Industrials
+NVRI,Enviri Corp.,Small Cap,Industrials
