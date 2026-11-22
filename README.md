@@ -191,5 +191,14 @@ python src/06_visualize_results.py
 
 ---
 
-## 👥 Contributors
-* Department of Computational and Data Sciences (CDS), Indian Institute of Science, Bangalore.
+## 👥 Contributors — Team TensorQuads
+
+| # | Name | Email | Role & Primary Responsibility |
+|---|---|---|---|
+| 1 | **Binayak Choudhury** (Lead) | `binayakchou1@iisc.ac.in` | **Data Systems Architect:** PySpark core processing engine, Catalyst plan optimization, memory persistence tuning, and benchmarking coordinator |
+| 2 | **Elangovan M** | `elangovanm@iisc.ac.in` | **Data Engineering & Storage:** HDFS/Parquet storage schema, Star Schema design, co-partitioning strategy (HashPartitioner), and ingestion ETL |
+| 3 | **Arun V** | `arunv1@iisc.ac.in` | **Distributed ML & Analytics:** PySpark MLlib feature engineering pipelines (`VectorAssembler`), GBT Alpha Regressor, Random Forest Classifier, and analytical validation |
+| 4 | **Madabhai Viresh Umesh** | `madabhavium1@iisc.ac.in` | **Streaming, Visualization & Benchmarking:** Kafka tick stream simulation, Spark Structured Streaming watermarking, 300-DPI figure generation, and interactive executive dashboard |
+
+**Institution:** Department of Computational and Data Sciences (CDS), Indian Institute of Science (IISc), Bangalore  
+**Course:** DSBA DA-231-O: Data Engineering at Scale | **Instructor:** Prof. Yogesh Simmhan

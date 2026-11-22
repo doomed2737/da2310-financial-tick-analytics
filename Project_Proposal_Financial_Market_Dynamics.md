@@ -4,11 +4,11 @@
 **Department:** Department of Computational and Data Sciences (CDS), Indian Institute of Science, Bangalore  
 **Instructor:** Prof. Yogesh Simmhan  
 
-**Team Members (Team of 4):**
-1. **[Your Name]** (Lead / Data Systems Architect) — <email>@iisc.ac.in
-2. **[Team Member 2]** (Data Engineering / ETL & Partitioning) — <email>@iisc.ac.in
-3. **[Team Member 3]** (Distributed ML & Analytics) — <email>@iisc.ac.in
-4. **[Team Member 4]** (Streaming, Visualization & Benchmarking) — <email>@iisc.ac.in
+**Team: TensorQuads (Team of 4):**
+1. **Binayak Choudhury** (Lead / Data Systems Architect) — binayakchou1@iisc.ac.in
+2. **Elangovan M** (Data Engineering / Storage & Partitioning) — elangovanm@iisc.ac.in
+3. **Arun V** (Distributed ML & Analytics) — arunv1@iisc.ac.in
+4. **Madabhai Viresh Umesh** (Streaming, Visualization & Benchmarking) — madabhavium1@iisc.ac.in
 
 ---
 
@@ -113,20 +113,20 @@ educeByKey, combineByKey, or DataFrame native expressions (sum, vg) to leverage
 
 | Timeline | Milestone / Deliverable | Primary Responsibility |
 |---|---|---|
-| **Week 1–2 (Oct 1 – Oct 14)** | Ingestion of raw tick data; conversion to Parquet; HDFS/local directory partitioning; baseline exploratory data analysis (EDA). | [Team Member 2] & [Your Name] |
-| **Week 3–4 (Oct 15 – Oct 28)** | Spark DataFrame & SQL batch processing engine; Rolling indicator implementations (VWAP, Realized Volatility); Partitioning & Catalyst optimization profiling. | [Your Name] & [Team Member 2] |
-| **Week 5–6 (Oct 29 – Nov 11)** | Kafka tick generator simulation; Spark Structured Streaming pipeline with stateful windowing; Spark MLlib feature extraction and classifier training. | [Team Member 3] & [Team Member 4] |
-| **Week 7 (Nov 12 – Nov 18)** | End-to-end benchmarking (Speedup, Shuffle volume, GC profiling); Final Report and Public Code Repository submission (**Due Nov 15**). | **All Members** (Led by [Your Name]) |
-| **Week 8 (Nov 19 – Nov 28)** | Streamlit interactive visualization dashboard; Slide deck creation; Rehearsal for Final Project Demo & Presentation (**Nov 28/29**). | [Team Member 4] & All Members |
+| **Week 1–2 (Oct 1 – Oct 14)** | Ingestion of raw tick data; conversion to Parquet; HDFS/local directory partitioning; baseline exploratory data analysis (EDA). | Elangovan M & Binayak Choudhury |
+| **Week 3–4 (Oct 15 – Oct 28)** | Spark DataFrame & SQL batch processing engine; Rolling indicator implementations (VWAP, Realized Volatility); Partitioning & Catalyst optimization profiling. | Binayak Choudhury & Elangovan M |
+| **Week 5–6 (Oct 29 – Nov 11)** | Kafka tick generator simulation; Spark Structured Streaming pipeline with stateful windowing; Spark MLlib feature extraction and classifier training. | Arun V & Madabhai Viresh Umesh |
+| **Week 7 (Nov 12 – Nov 18)** | End-to-end benchmarking (Speedup, Shuffle volume, GC profiling); Final Report and Public Code Repository submission (**Due Nov 15**). | **All Members** (Led by Binayak Choudhury) |
+| **Week 8 (Nov 19 – Nov 28)** | Streamlit interactive visualization dashboard; Slide deck creation; Rehearsal for Final Project Demo & Presentation (**Nov 28/29**). | Madabhai Viresh Umesh & All Members |
 
 ---
 
 ## 5. Division of Responsibilities
 
-* **[Your Name] (Lead / Systems Architect):** Core PySpark pipeline architecture, Catalyst query plan optimization, memory persistence tuning, and benchmarking coordinator.
-* **[Team Member 2] (Data Engineering & Storage):** HDFS storage layout, Parquet schema design, partitioning strategies (HashPartitioner), and data cleaning.
-* **[Team Member 3] (Distributed ML & Analytics):** Feature engineering pipeline (VectorAssembler), volatility regime classification model with Spark MLlib, and analytical validation.
-* **[Team Member 4] (Streaming & Visualization):** Kafka producer simulation, Spark Structured Streaming watermarking, and Streamlit monitoring dashboard.
+* **Binayak Choudhury (Lead / Systems Architect):** Core PySpark pipeline architecture, Catalyst query plan optimization, memory persistence tuning, and benchmarking coordinator.
+* **Elangovan M (Data Engineering & Storage):** HDFS storage layout, Parquet schema design, partitioning strategies (HashPartitioner), and data cleaning.
+* **Arun V (Distributed ML & Analytics):** Feature engineering pipeline (VectorAssembler), volatility regime classification model with Spark MLlib, and analytical validation.
+* **Madabhai Viresh Umesh (Streaming & Visualization):** Kafka producer simulation, Spark Structured Streaming watermarking, and interactive executive dashboard.
 
 ---
 ## 6. Future Scope & Extensibility: ML-Based Predictive Modeling & Distributed Inference

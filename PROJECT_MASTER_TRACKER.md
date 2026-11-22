@@ -1,6 +1,7 @@
 # DA2310: Data Engineering at Scale — Project Master Tracker
 ## Scalable High-Frequency Financial Tick Analytics and Real-Time Volatility Engine
 
+**Team:** TensorQuads (Binayak Choudhury, Elangovan M, Arun V, Madabhai Viresh Umesh)  
 **Institution:** Indian Institute of Science (IISc), Bangalore  
 **Department:** Department of Computational and Data Sciences (CDS)  
 **Course:** DSBA DA-231-O (3:1) | August 2026 Semester  
