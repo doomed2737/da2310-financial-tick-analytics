@@ -20,6 +20,12 @@ This project designs and evaluates an end-to-end, distributed Big Data Lakehouse
 4. **Indian Equities GBT Alpha Regressor:** Trained a `GBTRegressor` on 1.09M Indian equity bars, forecasting continuous forward returns with **MAE of 0.7495%** and out-of-sample $R^2 = 0.0173$.
 5. **Interactive Executive Web Dashboard:** Self-contained [dashboard.html](dashboard.html) featuring Chart.js visualizers, live Invest/Divest alpha rankings, and a 300-DPI publication gallery.
 
+### 📑 Official Course Deliverables
+* 📄 **Final Project Report (PDF):** [`DA2310_Financial_Tick_Analytics_Project_Report.pdf`](DA2310_Financial_Tick_Analytics_Project_Report.pdf)
+* 📊 **Presentation Slide Deck (PPTX):** [`DA2310_Financial_Tick_Analytics_Presentation.pptx`](DA2310_Financial_Tick_Analytics_Presentation.pptx)
+* 📋 **Accepted Project Proposal (PDF):** [`project_proposal_DSBA_tensorquads.pdf`](project_proposal_DSBA_tensorquads.pdf)
+* 🌐 **Interactive Executive Dashboard:** [`dashboard.html`](dashboard.html)
+
 ---
 
 ## 🏛️ System Architecture
